@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scheduling Problem</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+}
+
+#inputs {
+    margin-bottom: 20px;
+}
+
+#results {
+    margin-top: 20px;
+}
+
+#results ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#results ul li {
+    margin-bottom: 5px;
+}
+</style>
+</head>
+<body>
+  <h1>Scheduling Problem</h1>
+  <div id="inputs">
+    <label for="jobs">Number of jobs:</label>
+    <input type="number" id="jobs" min="1" max="10" value="3">
+    <label for="machines">Number of machines:</label>
+    <input type="number" id="machines" min="1" max="10" value="3">
+    <button onclick="generateSchedule()">Generate Schedule</button>
+  </div>
+  <div id="results">
+    <h2>Schedule:</h2>
+    <ul id="schedule"></ul>
+  </div>
+
+  <script>
+    function generateSchedule() {
+        const jobsCount = parseInt(document.getElementById("jobs").value);
+        const machinesCount = parseInt(document.getElementById("machines").value);
+
+        const jobs = [];
+        for (let i = 0; i < jobsCount; i++) {
+            const job = [];
+            for (let j = 0; j < machinesCount; j++) {
+                // Tính thời gian gia công ngẫu nhiên cho từng công việc trên mỗi máy
+                job.push(Math.floor(Math.random() * 10) + 1); // Thời gian gia công ngẫu nhiên từ 1 đến 10
+            }
+            jobs.push(job);
+        }
+
+        const schedule = []; // Lịch trình gia công
+
+        // Tạo lịch trình gia công
+        for (let i = 0; i < jobsCount; i++) {
+            let minTime = Infinity;
+            let minMachine = -1;
+            for (let j = 0; j < machinesCount; j++) {
+                if (jobs[i][j] < minTime) {
+                    minTime = jobs[i][j];
+                    minMachine = j;
+                }
+            }
+            schedule.push(minMachine);
+        }
+
+        // Hiển thị lịch trình
+        const scheduleList = document.getElementById("schedule");
+        scheduleList.innerHTML = "";
+        for (let i = 0; i < jobsCount; i++) {
+            const listItem = document.createElement("li");
+            listItem.textContent = `Job ${i + 1} on Machine ${schedule[i] + 1}`;
+            scheduleList.appendChild(listItem);
+        }
+    }
+  </script>
+</body>
+</html>

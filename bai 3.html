@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dãy số tự nhiên có tổng được chọn và không vượt quá số lượng tối đa</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+
+  #input-form {
+    margin-bottom: 20px;
+  }
+
+  #results {
+    margin-top: 20px;
+  }
+
+  #results ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  #results ul li {
+    margin-bottom: 5px;
+  }
+
+  #results ul .total {
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+<h1>Dãy số tự nhiên có tổng được chọn và không vượt quá số lượng tối đa</h1>
+<form id="input-form">
+  <label for="sum">Nhập tổng:</label>
+  <input type="number" id="sum" min="1" max="100" value="10">
+  <label for="limit">Nhập số lượng tối đa:</label>
+  <input type="number" id="limit" min="1" max="10" value="4">
+  <button type="button" onclick="displaySequences()">Liệt kê</button>
+</form>
+<div id="results">
+  <h2>Kết quả:</h2>
+  <p>Tổng số kết quả: <span id="total-results"></span></p>
+  <ul id="sequences"></ul>
+</div>
+
+<script>
+function generateSequences(sum, limit, prefix = []) {
+  if (sum === 0) {
+    return [{sequence: prefix, total: prefix.reduce((a, b) => a + b, 0)}];
+  }
+
+  if (limit === 0 || sum < 0) {
+    return [];
+  }
+
+  let sequences = [];
+  for (let i = 1; i <= limit; i++) {
+    let newPrefix = [...prefix, i];
+    let newSequences = generateSequences(sum - i, i, newPrefix);
+    sequences = sequences.concat(newSequences);
+  }
+  return sequences;
+}
+
+function displaySequences() {
+  const sumInput = document.getElementById("sum");
+  const limitInput = document.getElementById("limit");
+  const sum = parseInt(sumInput.value);
+  const limit = parseInt(limitInput.value);
+  const sequences = generateSequences(sum, limit);
+  const sequencesList = document.getElementById("sequences");
+  sequencesList.innerHTML = "";
+  sequences.forEach(sequence => {
+    const listItem = document.createElement("li");
+    listItem.textContent = sequence.sequence.join(" + ") + " = " + sequence.total;
+    sequencesList.appendChild(listItem);
+  });
+
+  const totalResultsSpan = document.getElementById("total-results");
+  totalResultsSpan.textContent = sequences.length;
+}
+</script>
+</body>

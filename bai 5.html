@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BFS Example</title>
+<style>
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 {
+font-size: 34px;
+margin-bottom: 20px;
+}
+
+#graph {
+display: flex;
+justify-content: center;
+align-items: center;
+width: 600px;
+height: 530px;
+border: 1px solid black;
+position: relative;
+margin-bottom: 20px;
+}
+
+.node {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background-color: rgb(28, 238, 249);
+display: flex;
+justify-content: center;
+align-items: center;
+position: absolute;
+font-size: 18px;
+}
+
+.edge {
+position: absolute;
+z-index: -1;
+border-top: 2px solid black;
+width: 50px;
+transform-origin: 0 100%;
+}
+
+.path {
+background-color: yellow;
+}
+
+button {
+padding: 10px 20px;
+font-size: 16px;
+cursor: pointer;
+margin-top: 20px;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+</style>
+</head>
+<body>
+<h1>BFS Example</h1>
+<div id="graph"></div>
+<label for="startNode">Start Node:</label>
+<input type="number" id="startNode" min="1" max="10">
+<label for="endNode">End Node:</label>
+<input type="number" id="endNode" min="1" max="10">
+<button id="runBtn">Run BFS</button>
+
+<script>
+const graph = [
+[0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+[1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+[1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+[0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+[0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+[0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+[0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+[0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[0, 0, 0, 0, 0, 0, 1, 0, 1, 0]
+];
+
+const nodes = [
+{x: 300, y: 50},
+{x: 150, y: 150},
+{x: 450, y: 150},
+{x: 75, y: 250},
+{x: 225, y: 250},
+{x: 375, y: 250},
+{x: 525, y: 250},
+{x: 150, y: 350},
+{x: 450, y: 350},
+{x: 300, y: 450}
+];
+
+const graphContainer = document.getElementById('graph');
+const nodeElements = [];
+for (let i = 0; i < nodes.length; i++) {
+const node = document.createElement('div');
+node.classList.add('node');
+node.textContent = i + 1;
+node.style.left = `${nodes[i].x}px`;
+node.style.top = `${nodes[i].y}px`;
+graphContainer.appendChild(node);
+nodeElements.push(node);
+}
+
+const edgeElements = [];
+for (let i = 0; i < graph.length; i++) {
+for (let j = i + 1; j < graph[i].length; j++) {
+if (graph[i][j] === 1) {
+const edge = document.createElement('div');
+edge.classList.add('edge');
+edge.style.left = `${nodes[i].x + 20}px`;
+edge.style.top = `${nodes[i].y + 20}px`;
+const dx = nodes[j].x - nodes[i].x;
+const dy = nodes[j].y - nodes[i].y;
+const distance = Math.sqrt(dx * dx + dy * dy);
+edge.style.width = `${distance}px`;
+edge.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+graphContainer.appendChild(edge);
+edgeElements.push(edge);
+}
+}
+}
+
+function BFS(start, end) {
+const queue = [start];
+const visited = new Set();
+const parent = {};
+
+while (queue.length > 0) {
+const current = queue.shift();
+if (current === end) {
+return reconstructPath(parent, start, end);
+}
+
+visited.add(current);
+
+for (let neighbor = 0; neighbor < graph[current].length; neighbor++) {
+if (graph[current][neighbor] === 1 && !visited.has(neighbor)) {
+queue.push(neighbor);
+parent[neighbor] = current;
+}
+}
+}
+
+return null;
+}
+
+function reconstructPath(parent, start, end) {
+const path = [end];
+let current = end;
+while (current !== start) {
+current = parent[current];
+path.unshift(current);
+}
+return path;
+}
+
+function clearPath() {
+nodeElements.forEach(node => {
+node.classList.remove('path');
+});
+}
+
+document.getElementById('runBtn').addEventListener('click', function() {
+const startNode = parseInt(document.getElementById('startNode').value);
+const endNode = parseInt(document.getElementById('endNode').value);
+if (isNaN(startNode) || isNaN(endNode) || startNode < 1 || startNode > nodes.length || endNode < 1 || endNode > nodes.length) {
+alert('Invalid input!');
+return;
+}
+
+clearPath();
+const path = BFS(startNode - 1, endNode - 1);
+if (path) {
+path.forEach(nodeIndex => {
+nodeElements[nodeIndex].classList.add('path');
+});
+} else {
+alert('No path found!');
+}
+});
+</script>
+</body>
+</html>
+

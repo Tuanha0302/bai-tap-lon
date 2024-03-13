@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graph Visualization</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
+<style type="text/css">
+    #mynetwork {
+        width: 800px;
+        height: 600px;
+        border: 1px solid lightgray;
+    }
+</style>
+</head>
+<body>
+
+<div id="mynetwork"></div>
+<div id="shortestPaths"></div>
+
+<button onclick="findShortestPaths()">Tìm đường đi ngắn nhất</button>
+
+<script type="text/javascript">
+    // Danh sách các đỉnh
+    const nodes = new vis.DataSet([
+        {id: 'a', label: 'a'},
+        {id: 'b', label: 'b'},
+        {id: 'c', label: 'c'},
+        {id: 'd', label: 'd'},
+        {id: 'e', label: 'e'}
+    ]);
+
+    // Danh sách các cạnh và độ dài
+    const edges = new vis.DataSet([
+        {from: 'a', to: 'b', label: '5'},
+        {from: 'b', to: 'c', label: '2'},
+        {from: 'c', to: 'd', label: '7'},
+        {from: 'd', to: 'e', label: '2'},
+        {from: 'a', to: 'd', label: '9'},
+        {from: 'a', to: 'e', label: '1'}
+    ]);
+
+    // Tạo một mạng
+    const container = document.getElementById('mynetwork');
+    const data = {
+        nodes: nodes,
+        edges: edges
+    };
+    const options = {};
+    const network = new vis.Network(container, data, options);
+
+    function findShortestPaths() {
+        // Ma trận trọng số
+        const graph = [
+            [0, 5, Number.MAX_SAFE_INTEGER, 9, 1],
+            [Number.MAX_SAFE_INTEGER, 0, 2, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
+            [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, 0, 7, Number.MAX_SAFE_INTEGER],
+            [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, 0, 2],
+            [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, 0]
+        ];
+
+        const numVertices = graph.length;
+
+        // Tạo mảng 2 chiều để lưu đường đi ngắn nhất
+        const shortestPaths = [];
+        for (let i = 0; i < numVertices; i++) {
+            shortestPaths[i] = [];
+            for (let j = 0; j < numVertices; j++) {
+                shortestPaths[i][j] = graph[i][j];
+            }
+        }
+
+        // Thuật toán Floyd-Warshall
+        for (let k = 0; k < numVertices; k++) {
+            for (let i = 0; i < numVertices; i++) {
+                for (let j = 0; j < numVertices; j++) {
+                    if (shortestPaths[i][k] + shortestPaths[k][j] < shortestPaths[i][j]) {
+                        shortestPaths[i][j] = shortestPaths[i][k] + shortestPaths[k][j];
+                    }
+                }
+            }
+        }
+
+        // Hiển thị đường đi ngắn nhất giữa các cặp đỉnh
+        const shortestPathsDiv = document.getElementById('shortestPaths');
+        shortestPathsDiv.innerHTML = "<h2>Đường đi ngắn nhất giữa các cặp đỉnh:</h2>";
+        for (let i = 0; i < numVertices; i++) {
+            for (let j = 0; j < numVertices; j++) {
+                if (shortestPaths[i][j] !== Number.MAX_SAFE_INTEGER && i !== j) {
+                    shortestPathsDiv.innerHTML += <p>Đỉnh ${String.fromCharCode(97 + i)} đến đỉnh ${String.fromCharCode(97 + j)}: ${shortestPaths[i][j]}</p>;
+                }
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
